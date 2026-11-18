@@ -1,4 +1,4 @@
-# O fim da escala 6x1 (e 6x2) nas empresas 24/7: o que a matemática diz sobre a nova lei?
+# O fim da escala 6x1 (e 6x2) nas empresas 24/7: quais as alternativas?
 
 Com a aprovação da **EC 141/2026**, o Brasil entrou oficialmente na transição para o fim da escala 6x1, reduzindo o teto constitucional de 44h para **40h semanais** e garantindo **2 dias de folga** a cada período de 7 dias.
 
