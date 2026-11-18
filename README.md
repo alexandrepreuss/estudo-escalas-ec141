@@ -10,6 +10,23 @@ Resolvi colocar a mão na massa com a ajuda do Gemini e rodar simulações em Py
 
 ---
 
+## Para quem tem pressa
+
+* **O problema:** A EC 141/2026 reduz a jornada para 40h/semana e exige 2 folgas a cada 7 dias. A `5x2` padrão resolve a lei, mas trava as folgas nos mesmos dias da semana, gerando conflito em operações 24/7.
+* **O limite matemático:** Com 8h/dia e 40h/semana, o teto teórico é de **71,43%** de efetivo diário; garantindo rotação semanal, o máximo prático cai para **70,00% a 70,59%** (contra 75% da antiga `6x2`), exigindo **+7,14% a +12,50%** de contratações.
+* **O fator domingo (Art. 386 da CLT):** Ciclos longos (como 20 dias) agrupam folgas e deixam o colaborador até **105 dias sem um domingo livre**, o que pesa muito em equipes com maioria feminina. Nesse quesito, **`2x1`** (21d), **`4x2`** (máx. 35d) e **`12x36`** (14d) levam vantagem.
+* **A saída `12x36`:** Mantém **0 contratações extras**, mas depende de acordo/convenção coletiva, tem média de 42h/semana (risco em dez/2027) e aumenta o risco de fadiga (NR-1).
+
+**Navegue pelos capítulos:**
+* [1. O problema da escala 5x2 em empresas que trabalham 24/7](#1-o-problema-da-escala-5x2-em-empresas-que-trabalham-247)
+* [2. As restrições e o argumento matemático que limita a eficiência](#2-as-restrições-e-o-argumento-matemático-que-limita-a-eficiência)
+* [3. Quadro resumo comparativo e as vantagens de cada perfil estudado](#3-quadro-resumo-comparativo-e-as-vantagens-de-cada-perfil-estudado)
+* [4. O estudo da escala 12x36 e os riscos da adoção](#4-o-estudo-da-escala-12x36-e-os-riscos-da-adoção)
+* [Scripts do repositório](#scripts-do-repositório)
+* [Fontes](#fontes)
+
+---
+
 ## 1. O problema da escala 5x2 em empresas que trabalham 24/7
 
 À primeira vista, a solução óbvia seria pegar a **5x2** e dividir a equipe em 7 turmas (uma começando em cada dia da semana). Matematicamente, funciona: dá 40h/semana e garante cobertura constante todos os dias.
@@ -48,39 +65,56 @@ Ou seja: sair dos **75%** da antiga `6x2` para **~70%** não é falta de criativ
 
 Usando nossa base de **100 funcionários por turno (300 efetivos no total)** para manter **75 postos simultâneos 24h/dia**, simulamos dezenas de combinações e chegamos aos perfis vencedores — incluindo a exceção `12x36`:
 
-| Perfil | Escala | Ciclo | Horas/Sem | Turnos x Turmas | Efetivo Diário (%) | Quadro Total p/ 75 postos | Domingos/mês (méd) | Dias entre domingos (Méd / Máx) |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| *Referência Atual* | *6x2 (Ilegal pós-EC 141)* | *8d* | *42,00h* | *3x 4t* | *75,00%* | *300 (+0)* | *1,09* | *28,0d / 49d* |
-| **1. Máx. eficiência (folga isolada)** | **3x1 + 2x1 + 2x1** | 10d | 39,20h | 3x 10t | **70,00%** | **322 (+22)** | 1,30 | **23,3d / 56d** |
-| **2A. Máx. eficiência (folga dupla)** | **5x2 + 5x2 + 4x2** | 20d | 39,20h | 3x 10t | **70,00%** | **322 (+22)** | 1,30 | **23,3d / 105d** |
-| **2B. Ciclo curto (folga dupla)** | **5x2 + 4x2** | 13d | 38,77h | 3x 13t | **69,23%** | **325 (+25)** | 1,34 | **22,8d / 70d** |
-| **3A. Simplicidade (folga dupla)** | **4x2** | 6d | 37,33h | 3x 3t | **66,67%** | **338 (+38)** | 1,45 | **21,0d / 35d** |
-| **3B. Simplicidade (folga isolada)** | **2x1** | 3d | 37,33h | 3x 3t | **66,67%** | **338 (+38)** | 1,45 | **21,0d / 21d** |
-| **4. Conforto + 3 turmas** | **5x2 + 5x3** | 15d | 37,33h | 3x 3t | **66,67%** | **338 (+38)** | 1,45 | **21,0d / 77d** |
-| **Exceção (ACT/CCT)** | **12x36 (1x1)** | 2d | 42,00h | 2x 2t | **50,00%** | **300 (+0)** | 2,17 | **14,0d / 14d** |
+| Escala | Ciclo | Turnos x Turmas | Efetivo Diário (%) | Quadro Total p/ 75 postos | Dias entre domingos (Méd / Máx) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| *6x2 (atual, ilegal pós-EC 141)* | *8d* | *3x 4t* | *75,00%* | *300 (+0)* | *28,0d / 49d* |
+| **3x1 + 2x1 + 2x1** | 10d | 3x 10t | **70,00%** | **322 (+22)** | 23,3d / 56d |
+| **5x2 + 5x2 + 4x2** | 20d | 3x 10t | **70,00%** | **322 (+22)** | 23,3d / 105d |
+| **5x2 + 4x2** | 13d | 3x 13t | **69,23%** | **325 (+25)** | 22,8d / 70d |
+| **4x2** | 6d | 3x 3t | **66,67%** | **338 (+38)** | 21,0d / 35d |
+| **2x1** | 3d | 3x 3t | **66,67%** | **338 (+38)** | 21,0d / 21d |
+| **5x2 + 5x3** | 15d | 3x 3t | **66,67%** | **338 (+38)** | 21,0d / 77d |
+| **12x36 (1x1)** — exceção via ACT/CCT | 2d | 2x 2t | **50,00%** | **300 (+0)** | 14,0d / 14d |
+
+> *Turma* é o grupo de pessoas que trabalha e folga junto. *"3x 10t"* significa 3 turnos, cada um dividido em 10 turmas.
+
+### Exemplo na prática: a escala 4x2
+
+Na `4x2`, cada pessoa trabalha 4 dias e folga 2. Em cada turno, a equipe é dividida em **3 turmas**, e cada turma começa o ciclo 2 dias depois da anterior. O resultado é que **sempre 2 turmas trabalham e 1 folga**, todos os dias:
+
+| Turma | Dia 1 | Dia 2 | Dia 3 | Dia 4 | Dia 5 | Dia 6 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Turma A | T | T | T | T | **F** | **F** |
+| Turma B | **F** | **F** | T | T | T | T |
+| Turma C | T | T | **F** | **F** | T | T |
+| **Trabalhando** | 2 | 2 | 2 | 2 | 2 | 2 |
+
+Como o ciclo tem 6 dias e a semana tem 7, a folga "anda" pelos dias da semana: ninguém fica preso à mesma terça e quarta. Em média, cada pessoa folga em um domingo a cada 21 dias, e no pior caso espera 35 dias.
+
+Na base de 300 funcionários, são 2 em cada 3 turmas trabalhando, o que dá 66,67% de efetivo por dia. Para manter os 75 postos, o quadro vai a **338 pessoas (+38)**, ou seja, cerca de 113 por turno em 3 turmas de 37 a 38.
 
 > **Nota importante sobre os domingos (Méd / Máx):** Na `6x2`, você folga 2 domingos seguidos (7 dias de intervalo) e depois fica **49 dias** (7 semanas) sem folgar no domingo — média de 28 dias. O mesmo efeito de "agrupamento" acontece em ciclos longos: na `5x2 + 5x2 + 4x2` (20d), o funcionário chega a ficar **105 dias** sem domingo de folga (e depois pega vários seguidos). Já na **`2x1`** (21 dias fixos) e na **`4x2`** (máx 35 dias), os domingos são muito mais bem distribuídos ao longo do ano.
 
-### O fator humano, o Art. 386 da CLT e o efetivo feminino (70%+)
+### O fator humano: o domingo e o efetivo feminino
 
-Esse detalhe dos intervalos de domingo muda completamente o jogo na nossa realidade, onde **mais de 70% do efetivo é composto por mulheres**. E aqui não se trata apenas de boa prática de gestão — há um peso jurídico direto:
+Esse detalhe dos intervalos de domingo muda completamente o jogo em operações onde **mais de 70% do efetivo é composto por mulheres**. E não se trata apenas de boa prática de gestão, porque há também o lado jurídico:
 
-* **Art. 386 da CLT (Regra Geral):** Determina que, havendo trabalho aos domingos, deve ser organizada uma **escala de revezamento quinzenal** (folga dominical a cada **15 dias / 14 dias**) para as mulheres. O STF (**Tema 528**) já confirmou que essa proteção é constitucional, e o descumprimento pode gerar pagamento em dobro do domingo trabalhado.
-* **Convenções Coletivas (CCTs):** Algumas categorias negociam em acordo/convenção coletiva a flexibilização para **pelo menos 1 domingo de folga por mês** (debate que também passa pelo **Tema 1046** do STF sobre autonomia sindical).
+* **Art. 386 da CLT:** prevê uma escala de revezamento quinzenal que favoreça o repouso dominical da mulher quando há trabalho aos domingos. Vale confirmar a aplicação ao seu caso com o jurídico.
+* **Convenções coletivas:** muitas categorias negociam regras próprias, como pelo menos 1 domingo de folga por mês.
 
-Quando olhamos apenas a *média* anual (`1,30` domingo/mês), escalas como `5x2 + 5x2 + 4x2` ou `5x2 + 4x2` parecem atender tranquilamente. Mas, na prática do calendário, ficar **56, 70 ou até 105 dias seguidos sem folgar em um domingo** rompe até mesmo a regra mensal das convenções coletivas — e passa longe da regra quinzenal da CLT.
+Quando olhamos apenas a *média* (cerca de 1,3 domingo de folga por mês), escalas como `5x2 + 5x2 + 4x2` ou `5x2 + 4x2` parecem atender tranquilamente. Mas, no calendário real, ficar **56, 70 ou até 105 dias seguidos sem folgar em um domingo** rompe a regra mensal das convenções e fica longe da lógica quinzenal do Art. 386.
 
 Sob essa ótica:
-* A única escala do estudo que cumpre nativamente a **regra quinzenal do Art. 386 da CLT** é a **`12x36`** (domingo a cada **14 dias**).
+* A única escala do estudo com domingo de folga a cada **14 dias** é a **`12x36`**.
 * Entre as escalas rotativas de 8 horas, as que mais preservam a regularidade mensal sem "apagões" longos são a **`2x1`** (folga garantida a cada **21 dias exatos**) e a **`4x2`** (máximo de **35 dias**).
 
 ### O que ganha e o que perde em cada perfil?
 
-* **Perfil 1 (`3x1 + 2x1 + 2x1`) — Ciclo de 10 dias:** Empata no **menor custo de reposição (+22 pessoas no total, +7,14%)**. Tem um ciclo curto e fácil de acompanhar, mas exige 10 turmas por turno e **não oferece folgas duplas** (as folgas são sempre de 1 dia).
-* **Perfil 2A (`5x2 + 5x2 + 4x2`) — Ciclo de 20 dias:** Também exige apenas **+22 contratações no total** e entrega **folgas duplas consecutivas** em todo o ciclo. A troca é gerenciar 10 turmas por turno em um ciclo um pouco mais longo (20 dias).
-* **Perfil 2B (`5x2 + 4x2`) — Ciclo de 13 dias:** Custa **+25 contratações no total (+8,33%)**, mantém folgas duplas e tem um ciclo bem curto (13 dias, com 1 domingo a cada 22,8 dias). Exige 13 turmas por turno.
-* **Perfil 3 (`4x2` ou `2x1`) — Ciclos de 6 ou 3 dias:** Aqui o foco é **simplicidade máxima de gestão**. Você reduz de 4 para **apenas 3 turmas por turno** e melhora o descanso aos fins de semana (1 domingo a cada **21 dias** exatos). O preço é o aumento maior de quadro (**+38 pessoas no total**, ou +12,5% na folha).
-* **Perfil 4 (`5x2 + 5x3`) — Ciclo de 15 dias:** Tem o mesmo custo do Perfil 3 (**+38 pessoas** e **apenas 3 turmas por turno**), mas entrega um benefício enorme de qualidade de vida: a cada 15 dias, o colaborador ganha um **"feriadão" de 3 folgas seguidas**. Excelente para retenção de talentos.
+* **`3x1 + 2x1 + 2x1` — Ciclo de 10 dias:** Empata no **menor custo de reposição (+22 pessoas no total, +7,14%)**. Tem um ciclo curto e fácil de acompanhar, mas exige 10 turmas por turno e **não oferece folgas duplas** (as folgas são sempre de 1 dia).
+* **`5x2 + 5x2 + 4x2` — Ciclo de 20 dias:** Também exige apenas **+22 contratações no total** e entrega **folgas duplas consecutivas** em todo o ciclo. A troca é gerenciar 10 turmas por turno em um ciclo um pouco mais longo (20 dias).
+* **`5x2 + 4x2` — Ciclo de 13 dias:** Custa **+25 contratações no total (+8,33%)**, mantém folgas duplas e tem um ciclo bem curto (13 dias, com 1 domingo a cada 22,8 dias). Exige 13 turmas por turno.
+* **`4x2` ou `2x1` — Ciclos de 6 ou 3 dias:** Aqui o foco é **simplicidade máxima de gestão**. Você reduz de 4 para **apenas 3 turmas por turno** e melhora o descanso aos fins de semana (1 domingo a cada **21 dias** exatos). O preço é o aumento maior de quadro (**+38 pessoas no total**, ou +12,5% na folha).
+* **`5x2 + 5x3` — Ciclo de 15 dias:** Tem o mesmo custo da `4x2` (**+38 pessoas** e **apenas 3 turmas por turno**), mas entrega um benefício enorme de qualidade de vida: a cada 15 dias, o colaborador ganha um **"feriadão" de 3 folgas seguidas**. Excelente para retenção de talentos.
 
 ---
 
@@ -111,13 +145,22 @@ Na sua empresa, qual desses perfis faz mais sentido para a realidade da operaç�
 
 ## Scripts do Repositório
 
-* `estudo_escalas.py`: Busca exaustiva combinatória de escalas `t x f` em ciclos variados, validando conformidade com a EC 141/2026 e rotação semanal.
-* `gerar_relatorio.py`: Gera o relatório comparativo (etapa definitiva de 40h/semana) com quadros dia a dia por turma e exporta para `.md` e `.docx`.
-* `gerar_relatorio_42h.py`: Gera o relatório da etapa intermediária de transição (42h/semana com jornada de 8h24min/dia).
-* `gerar_docx.py`: Utilitário de conversão de Markdown para Word (`.docx`) em paisagem usando `python-docx`.
+* `estudo_escalas.py`: busca exaustiva combinatória de escalas `t x f` em ciclos variados, validando a conformidade com a EC 141/2026 e a rotação semanal.
+* `gerar_relatorio.py`: gera o relatório comparativo da etapa definitiva (40h/semana), com quadros dia a dia por turma, em `.md` e `.docx`.
+* `gerar_relatorio_42h.py`: gera o relatório da etapa intermediária de transição (42h/semana, jornada de 8h24min/dia).
+* `gerar_docx.py`: utilitário que converte Markdown em Word (`.docx`) em paisagem, usando `python-docx`.
 
 ```bash
 python3 estudo_escalas.py
 python3 gerar_relatorio.py
 python3 gerar_relatorio_42h.py
 ```
+
+---
+
+## Fontes
+
+* **Emenda Constitucional nº 141/2026** (alteração do Art. 7º da Constituição Federal): https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc141.htm
+* **Art. 386 da CLT** (Decreto-Lei nº 5.452/1943): https://www.jusbrasil.com.br/topicos/10722650/artigo-386-do-decreto-lei-n-5452-de-01-de-maio-de-1943
+* **Decisão cautelar do STF nas ADIs 8.041 e 8.042** (regra transitória das 42h e da jornada de 8h24min): https://pauseperin.adv.br/noticia/stf-esclarece-regras-de-implementacao-da-jornada-prevista-na-ec-n-141-
+* **Nova NR-1 e riscos psicossociais** (notícia do TST): https://www.tst.jus.br/-/nova-nr-1-amplia-prevencao-de-riscos-para-a-saude-mental-nos-ambientes-de-trabalho
