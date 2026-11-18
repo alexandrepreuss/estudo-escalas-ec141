@@ -239,6 +239,48 @@ def gerar_markdown(caminho_saida: str) -> None:
         linhas.append("| **Folga** | " + " | ".join(str(x) for x in folga_dia) + " |")
         linhas.append("")
 
+    linhas.append("---\n")
+    linhas.append("## 4. Considerações Financeiras, Operacionais e Riscos para Tomada de Decisão\n")
+    linhas.append(
+        "### 4.1. Custo da Inércia (Manter a escala 6x2 após 16/12/2026)\n"
+        "- A manutenção da `6x2` (42h/sem e apenas 1,75 folga/sem na média) após o início da transição da EC 141/2026 "
+        "expõe a empresa a passivo trabalhista direto (pagamento de horas extras excedentes, nulidade da escala e reflexos em DSR/férias/13º), "
+        "além de risco de autuação em fiscalizações e desgaste sindical.\n"
+    )
+    linhas.append(
+        "### 4.2. Impacto Orçamentário na Folha e Ponte de Transição (2026–2027)\n"
+        "- **Teto físico da lei:** Com jornadas de 8h/dia e limite de 40h/semana, o teto absoluto de efetivo diário é `40 / 56 = 71,43%` "
+        "(e no máximo `70,00%` com rotação semanal). Portanto, qualquer escala de 8h exige aumento de quadro.\n"
+        "- **Faixa de impacto direto na folha:** Sobre os **210 efetivos atuais**, manter os 52,5 postos simultâneos exige entre "
+        "**+15 pessoas (+7,14%)** nas opções de maior aproveitamento (`3x1 + 2x1 + 2x1` e `5x2 + 5x2 + 4x2`) e **+27 pessoas (+12,50%)** "
+        "nas opções mais simples (`4x2`, `2x1` e `5x2 + 5x3`), além de encargos trabalhistas, benefícios e custo de recrutamento/integração.\n"
+        "- **Alívio de fluxo de caixa na transição (dez/2026 a dez/2027):** Conforme detalhado no estudo de 42h/semana, "
+        "durante o primeiro ano (jornada de 8h24min/dia), se os 24 minutos extras puderem ser aproveitados em horas-homem (1.260 h-h/dia), "
+        "a contratação imediata cai para **+5 pessoas** em dez/2026 na escala de 70%, permitindo escalonar os **+10 restantes** ao longo de 2027 até a entrada do teto definitivo de 40h.\n"
+    )
+    linhas.append(
+        "### 4.3. Riscos Financeiros e Operacionais da Exceção `12x36`\n"
+        "- **Dependência sindical integral:** A `12x36` só é juridicamente válida mediante **Acordo ou Convenção Coletiva de Trabalho (ACT/CCT)**.\n"
+        "- **Risco de degrau em dezembro/2027 (42h → 40h):** Como a `12x36` gera média de 42h/semana, a aplicação do teto de 40h/semana em dez/2027 "
+        "pode exigir folgas compensatórias adicionais via CCT, elevando o quadro de 210 para **~221 pessoas (+11 / +5,0%)**.\n"
+        "- **Custos indiretos ocultos:** A migração de 3 turnos de 8h para 2 turnos de 12h altera a incidência de **adicional noturno**, "
+        "exige revisão de **rotas e horários de transporte fretado**, impacta o **pagamento/compensação de feriados** e encarece a cobertura de faltas/atestados "
+        "(pois cobrir um turno de 12h com hora extra custa mais caro e aumenta o risco de fadiga e passivos na **NR-1**).\n"
+    )
+    linhas.append(
+        "### 4.4. Risco Trabalhista (Art. 386 da CLT) e Turnover no Efetivo Feminino (70%+)\n"
+        "- O **Art. 386 da CLT** prevê escala de revezamento quinzenal aos domingos para mulheres quando há trabalho dominical (e convenções coletivas frequentemente exigem ao menos 1 domingo/mês).\n"
+        "- Escalas com ciclos longos (`5x2 + 5x2 + 4x2` com máx. **105 dias**, `5x2 + 5x3` com **77 dias**, `5x2 + 4x2` com **70 dias** e `3x1 + 2x1 + 2x1` com **56 dias**) "
+        "geram longos períodos sem domingo livre, elevando o risco de **passivo trabalhista** e **rotatividade (turnover)** — cujo custo de reposição e perda de produtividade pode anular a economia inicial de folha frente à `4x2` (máx. 35 dias) ou `2x1` (21 dias fixos).\n"
+        "- **Recomendação pré-decisão:** Submeter as opções finalistas à validação do Jurídico Trabalhista e do Sindicato antes da aprovação orçamentária.\n"
+    )
+    linhas.append(
+        "### 4.5. Arredondamento de Turmas, Férias e Reserva Técnica\n"
+        "- Nas escalas de **10 ou 13 turmas por turno** (ex.: 225 pessoas ÷ 3 turnos = 75 pessoas/turno ÷ 10 turmas), as turmas ficam com **7 a 8 pessoas cada** (heterogêneas). "
+        "É necessário prever cobertura de férias e absenteísmo (reserva técnica), pois uma única ausência em uma microturma de 7 pessoas representa ~14% de perda pontual naquela equipe.\n"
+        "- A troca de escala exige ainda **plano de gestão da mudança** (comunicação, adequação de transporte e período de adaptação de 60 a 90 dias) para evitar picos de desligamento voluntário.\n"
+    )
+
     with open(caminho_saida, "w", encoding="utf-8") as f:
         f.write("\n".join(linhas))
     print(f"Relatório gerado com sucesso em: {caminho_saida}")
