@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*.docx
+*.pdf
+relatorio_*.md
+artigo_linkedin.md
+~$*
