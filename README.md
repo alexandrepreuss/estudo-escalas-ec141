@@ -4,7 +4,7 @@ Com a aprovação da **EC 141/2026**, o Brasil entrou oficialmente na transiçã
 
 Para quem trabalha em horário comercial (segunda a sexta), a conta é simples: é a velha e boa **5x2**. Mas e para quem opera **24 horas por dia, 7 dias por semana** — indústrias, logística, saúde, TI, segurança, call centers — e simplesmente **não pode parar**?
 
-Aqui na empresa, operamos 24/7 com 3 turnos de 8 horas e usávamos 4 turmas por turno na escala **6x2** (trabalha 6 dias, folga 2). Na base de **100 funcionários por turno** (**300 funcionários efetivos no total**), isso garantia sempre **75 pessoas trabalhando por hora** (75% de efetivo, totalizando 225 trabalhadores/dia e 1.800 horas-homem/dia). Com a nova regra, essa conta quebrou.
+Em um estudo para uma operação industrial 24/7 com 3 turnos de 8 horas, o modelo partia de 4 turmas por turno na escala **6x2** (trabalha 6 dias, folga 2). Numa base de **100 funcionários por turno** (**300 funcionários efetivos no total**), isso garantia sempre **75 pessoas trabalhando por hora** (75% de efetivo, totalizando 225 trabalhadores/dia e 1.800 horas-homem/dia). Com a nova regra, essa conta quebrou.
 
 Resolvi colocar a mão na massa com a ajuda do Gemini e rodar simulações em Python para testar todas as combinações possíveis de escalas (`t x f`) dentro da nova lei. O que descobrimos é um choque de realidade — mas também traz saídas muito interessantes.
 
@@ -63,7 +63,7 @@ Ou seja: sair dos **75%** da antiga `6x2` para **~70%** não é falta de criativ
 
 ## 3. Quadro resumo comparativo e as vantagens de cada perfil estudado
 
-Usando nossa base de **100 funcionários por turno (300 efetivos no total)** para manter **75 postos simultâneos 24h/dia**, simulamos dezenas de combinações e chegamos aos perfis vencedores — incluindo a exceção `12x36`:
+Usando essa base de **100 funcionários por turno (300 efetivos no total)** para manter **75 postos simultâneos 24h/dia**, simulamos dezenas de combinações e chegamos aos perfis vencedores — incluindo a exceção `12x36`:
 
 | Escala | Ciclo | Turnos x Turmas | Efetivo Diário (%) | Quadro Total p/ 75 postos | Dias entre domingos (Méd / Máx) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -122,7 +122,7 @@ Sob essa ótica:
 
 Sempre que o assunto aperta no 24/7, alguém levanta a mão na sala e pergunta: *"E a escala 12x36 (que na prática é 1x1)?"*
 
-Fizemos a conta considerando nossos **300 funcionários efetivos**. Na `12x36`, o dia deixa de ter 3 turnos de 8h e passa a ter **2 turnos de 12h** (150 pessoas no turno diurno e 150 no noturno). Você divide a equipe em **4 turmas de 75 pessoas** (2 turmas no turno do dia, 2 no da noite):
+Fizemos a conta considerando a mesma base de **300 funcionários efetivos**. Na `12x36`, o dia deixa de ter 3 turnos de 8h e passa a ter **2 turnos de 12h** (150 pessoas no turno diurno e 150 no noturno). Você divide a equipe em **4 turmas de 75 pessoas** (2 turmas no turno do dia, 2 no da noite):
 * Por dia (24h), trabalham **150 pessoas (50%)** e folgam **150 pessoas**.
 * Mas como cada uma trabalha 12 horas, você entrega os mesmos **75 postos simultâneos 24h por dia** (`150 x 12h = 1.800 horas-homem/dia`).
 * **Custo de reposição:** **Zero contratações extras (+0%)** (mantém os mesmos 300 funcionários) e ainda entrega um domingo de folga a cada **14 dias**!
