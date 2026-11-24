@@ -4,4 +4,6 @@ __pycache__/
 *.pdf
 relatorio_*.md
 artigo_linkedin.md
+*.jpg
+*.tmp
 ~$*

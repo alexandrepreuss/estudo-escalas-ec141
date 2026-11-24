@@ -146,12 +146,14 @@ Na sua empresa, qual desses perfis faz mais sentido para a realidade da operaç�
 ## Scripts do Repositório
 
 * `estudo_escalas.py`: busca exaustiva combinatória de escalas `t x f` em ciclos variados, validando a conformidade com a EC 141/2026 e a rotação semanal.
-* `gerar_relatorio.py`: gera o relatório comparativo da etapa definitiva (40h/semana), com quadros dia a dia por turma, em `.md` e `.docx`.
+* `verificar_folgas_mensais.py`: verifica todas as escalas estudadas (incluindo `6x3`, `3x3` e `4x4`) frente ao Art. 4º, § 4º da Portaria MTE nº 2.041/2026 (folgas mínimas no mês-calendário) e calcula jornadas médias de 8h e 8h24min.
+* `gerar_relatorio.py`: gera o relatório comparativo completo (v5), com quadros dia a dia por turma, considerações financeiras/riscos e tabela histórica, em `.md` e `.docx`.
 * `gerar_relatorio_42h.py`: gera o relatório da etapa intermediária de transição (42h/semana, jornada de 8h24min/dia).
 * `gerar_docx.py`: utilitário que converte Markdown em Word (`.docx`) em paisagem, usando `python-docx`.
 
 ```bash
 python3 estudo_escalas.py
+python3 verificar_folgas_mensais.py
 python3 gerar_relatorio.py
 python3 gerar_relatorio_42h.py
 ```

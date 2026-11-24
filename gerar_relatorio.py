@@ -1,10 +1,11 @@
 """
-Gerador do Relatório Comparativo de Escalas - EC 141/2026
-Base: 100 funcionários por turno (300 funcionários efetivos no total em 3 turnos de 8h).
-Cobertura operacional atual: 75 postos simultâneos 24x7 (1.800 horas-homem/dia).
+Gerador do Relatório Comparativo de Escalas (v5) - EC 141/2026 + Portaria MTE nº 2.041/2026
+Base: 70 funcionários por turno (210 funcionários efetivos no total em 3 turnos de 8h).
+Cobertura operacional atual: 52,5 postos simultâneos 24x7 (1.260 horas-homem/dia).
 """
 
 from math import ceil
+from gerar_docx import md_para_docx
 
 BASE_POR_TURNO = 70
 TURNOS_8H = 3
@@ -21,67 +22,87 @@ FINALISTAS = [
         "turnos": 3,
         "turmas_por_turno": 4,
         "passo": 2,
-        "legal": "Ilegal pós-EC 141 (42h/sem, 1,75 folga/sem)",
+        "legal": "Ilegal pós-EC 141 (42h/sem, 1,75 folga/sem, falha §1º e §4º)",
     },
     {
-        "perfil": "Perfil 1 - Máx. eficiência (folga isolada)",
+        "perfil": "Máx. eficiência (folga isolada, §1º)",
         "nome": "3x1 + 2x1 + 2x1",
         "padrao": "TTTFTTFTTF",
         "horas_dia": 8,
         "turnos": 3,
         "turmas_por_turno": 10,
         "passo": 1,
-        "legal": "OK - Regra Geral (<=40h, >=2 folgas em 7d)",
+        "legal": "OK pelo §1º (2 folgas/7d); falha em 3/10 fases em fev. 29d pelo §4º",
     },
     {
-        "perfil": "Perfil 2A - Máx. eficiência (folga dupla)",
+        "perfil": "Máx. eficiência (folga dupla, §1º)",
         "nome": "5x2 + 5x2 + 4x2",
         "padrao": "TTTTTFFTTTTTFFTTTTFF",
         "horas_dia": 8,
         "turnos": 3,
         "turmas_por_turno": 10,
         "passo": 2,
-        "legal": "OK - Regra Geral (<=40h, >=2 folgas em 7d)",
+        "legal": "OK pelo §1º (2 folgas/7d); falha em fases de 29/30/31d pelo §4º",
     },
     {
-        "perfil": "Perfil 2B - Ciclo curto (folga dupla)",
+        "perfil": "Ciclo curto (folga dupla, §1º)",
         "nome": "5x2 + 4x2",
         "padrao": "TTTTTFFTTTTFF",
         "horas_dia": 8,
         "turnos": 3,
         "turmas_por_turno": 13,
         "passo": 1,
-        "legal": "OK - Regra Geral (<=40h, >=2 folgas em 7d)",
+        "legal": "OK pelo §1º (2 folgas/7d); falha em fases de 29/30/31d pelo §4º",
     },
     {
-        "perfil": "Perfil 3A - Simplicidade (folga dupla)",
+        "perfil": "Maior jornada 100% §4º (folga isolada)",
+        "nome": "(4x 2x1) + 3x1",
+        "padrao": "TTFTTFTTFTTFTTTF",
+        "horas_dia": 8,
+        "turnos": 3,
+        "turmas_por_turno": 16,
+        "passo": 1,
+        "legal": "OK pelo §1º E 100% no §4º (8–10 folgas/mês em todas as turmas)",
+    },
+    {
+        "perfil": "Simplicidade + Blindagem §4º (folga dupla)",
         "nome": "4x2",
         "padrao": "TTTTFF",
         "horas_dia": 8,
         "turnos": 3,
         "turmas_por_turno": 3,
         "passo": 2,
-        "legal": "OK - Regra Geral (<=40h, >=2 folgas em 7d)",
+        "legal": "OK pelo §1º E 100% no §4º (sem depender de ACT/CCT)",
     },
     {
-        "perfil": "Perfil 3B - Simplicidade (folga isolada)",
+        "perfil": "Simplicidade + Melhores domingos (isolada)",
         "nome": "2x1",
         "padrao": "TTF",
         "horas_dia": 8,
         "turnos": 3,
         "turmas_por_turno": 3,
         "passo": 1,
-        "legal": "OK - Regra Geral (<=40h, >=2 folgas em 7d)",
+        "legal": "OK pelo §1º E 100% no §4º (domingo exato a cada 21 dias)",
     },
     {
-        "perfil": "Perfil 4 - Conforto (3 folgas) + 3 turmas",
+        "perfil": "Conforto (3 folgas) + 3 turmas (§1º e §4º)",
         "nome": "5x2 + 5x3",
         "padrao": "TTTTTFFTTTTTFFF",
         "horas_dia": 8,
         "turnos": 3,
         "turmas_por_turno": 3,
         "passo": 5,
-        "legal": "OK - Regra Geral (<=40h, >=2 folgas em 7d)",
+        "legal": "OK pelo §1º E 100% no §4º (porém máx. 77d sem domingo)",
+    },
+    {
+        "perfil": "Conforto (3 folgas) + Domingos <=28d (§3º/§4º)",
+        "nome": "6x3",
+        "padrao": "TTTTTTFFF",
+        "horas_dia": 8,
+        "turnos": 3,
+        "turmas_por_turno": 3,
+        "passo": 3,
+        "legal": "OK via ACT/CCT (§3º: máx. 6d seguidos) E 100% no §4º (domingo <=28d)",
     },
     {
         "perfil": "Exceção (ACT/CCT) - Turnos de 12h",
@@ -91,8 +112,27 @@ FINALISTAS = [
         "turnos": 2,
         "turmas_por_turno": 2,
         "passo": 1,
-        "legal": "Exceção via ACT/CCT (§2º/§3º) — média 42h/sem",
+        "legal": "Exceção via ACT/CCT (Art. 8º: 42h exige compensação/HE em dez/2027)",
     },
+]
+
+HISTORICO_COMPLETO = [
+    ("6x2 (Atual)", "TTTTTTFF", 8.0, 3, "Ilegal pós-EC 141 (42h/sem, <2 folgas/sem)"),
+    ("5x2 (Fixa)", "TTTTTFF", 8.0, 3, "OK §1º; rejeitada por folgas fixas (sem rotação)"),
+    ("4x2 + 6x2", "TTTTFFTTTTTTFF", 8.0, 3, "Reprovada: exige §3º, mas falha no §4º (8 folgas em 30/31d)"),
+    ("3x1 + 2x1 + 2x1", "TTTFTTFTTF", 8.0, 3, "OK §1º; falha em 3/10 fases apenas em fev. 29d no §4º"),
+    ("5x2 + 5x2 + 4x2", "TTTTTFFTTTTTFFTTTTFF", 8.0, 3, "OK §1º; falha §4º em 29–31d; máx. 105d sem domingo"),
+    ("5x2 + 4x2", "TTTTTFFTTTTFF", 8.0, 3, "OK §1º; falha §4º em 29–31d; máx. 70d sem domingo"),
+    ("(4x 2x1) + 3x1", "TTFTTFTTFTTFTTTF", 8.0, 3, "OK §1º e 100% §4º; folgas isoladas, 16 turmas"),
+    ("4x2", "TTTTFF", 8.0, 3, "OK §1º e 100% §4º; 3 turmas, folgas duplas, dom. <=35d"),
+    ("2x1", "TTF", 8.0, 3, "OK §1º e 100% §4º; 3 turmas, folgas isoladas, dom. = 21d"),
+    ("5x2 + 5x3", "TTTTTFFTTTTTFFF", 8.0, 3, "OK §1º e 100% §4º; 3 turmas, 3 folgas/15d, dom. <=77d"),
+    ("6x3", "TTTTTTFFF", 8.0, 3, "OK §3º (exige ACT/CCT) e 100% §4º; 3 turmas, dom. <=28d"),
+    ("3x3 (8h)", "TTTFFF", 8.0, 3, "Proposta sindical inviável em 8h (+105 pessoas / +50%)"),
+    ("4x4 (8h)", "TTTTFFFF", 8.0, 3, "Proposta sindical inviável em 8h (+105 pessoas / +50%)"),
+    ("3x3 (12h)", "TTTFFF", 12.0, 2, "Risco fadiga/jurídico (3x 12h seguidas) + regra 42h dez/2027"),
+    ("4x4 (12h)", "TTTTFFFF", 12.0, 2, "Risco fadiga/jurídico (4x 12h seguidas) + regra 42h dez/2027"),
+    ("12x36 (1x1 - 12h)", "TF", 12.0, 2, "ACT/CCT; Art. 8º exige compensação/HE em dez/2027; dom. = 14d"),
 ]
 
 
@@ -102,12 +142,9 @@ def gerar_matriz_turmas(padrao: str, turmas: int, passo: int) -> list[list[str]]
 
 
 def calcular_intervalos_domingo(padrao: str) -> tuple[float, int, list[int]]:
-    """
-    Calcula os intervalos reais (em dias) entre um domingo de folga e o próximo
-    ao longo do superciclo de N semanas (para N não múltiplo de 7).
-    Retorna (media_dias, max_dias, lista_intervalos).
-    """
     n = len(padrao)
+    if n % 7 == 0:
+        return 0.0, 0, []
     dom_folga = [w * 7 for w in range(n) if padrao[(w * 7) % n] == "F"]
     intervalos = [
         dom_folga[i + 1] - dom_folga[i] for i in range(len(dom_folga) - 1)
@@ -116,9 +153,24 @@ def calcular_intervalos_domingo(padrao: str) -> tuple[float, int, list[int]]:
     return media, max(intervalos), intervalos
 
 
+def folgas_por_mes(padrao: str, dias_mes: int) -> tuple[int, int, int]:
+    n = len(padrao)
+    meta = ceil((2 * dias_mes) / 7)
+    contagens = [
+        sum(1 for d in range(dias_mes) if padrao[(inicio + d) % n] == "F")
+        for inicio in range(n)
+    ]
+    abaixo = sum(1 for c in contagens if c < meta)
+    return min(contagens), max(contagens), abaixo
+
+
+def atende_par4_100(padrao: str) -> bool:
+    return all(folgas_por_mes(padrao, d)[2] == 0 for d in (28, 29, 30, 31))
+
+
 def gerar_markdown(caminho_saida: str) -> None:
     linhas: list[str] = []
-    linhas.append("# Estudo Comparativo de Escalas de Trabalho — EC 141/2026\n")
+    linhas.append("# Estudo Comparativo de Escalas de Trabalho (v5) — EC 141/2026 e Portaria MTE nº 2.041/2026\n")
     linhas.append(
         f"**Premissas da Empresa:** Operação contínua 24x7 | Base atual: **{BASE_POR_TURNO} funcionários por turno** "
         f"(**{TOTAL_EFETIVO_ATUAL} funcionários efetivos** nos 3 turnos de 8h) | "
@@ -126,17 +178,18 @@ def gerar_markdown(caminho_saida: str) -> None:
         f"(**157,5 trabalhando/dia** em 3 turnos de 8h = **{HORAS_HOMEM_DIA} horas-homem/dia**).\n"
     )
     linhas.append(
-        "**Critérios Legais e de Gestão Aplicados:** Regra Geral estrita da EC 141/2026 "
-        "($\\le 40\\text{h/sem}$ e $\\ge 2$ folgas em qualquer janela móvel de 7 dias) + "
-        "rotação semanal (ciclo não múltiplo de 7 para alternar dias de folga e domingos), "
-        "além da análise da exceção **12x36** (2 turnos de 12h).\n"
+        "**Marco Regulatório Atualizado (Portaria MTE nº 2.041, de 19/11/2026 — DOU 23/11/2026 e Decreto nº 13.173/2026):**\n"
+        "- **Regra Geral Semanal (Art. 4º, § 1º):** 2 repousos de 24h por semana (consecutivos ou alternados), preservado o intervalo interjornada de 11h.\n"
+        "- **Regime Compensatório via ACT/CCT (Art. 4º, §§ 3º e 4º):** Máximo de **6 dias seguidos** de trabalho e mínimo de folgas no mês-calendário igual a $\\lceil 2 \\times \\text{dias}/7 \\rceil$ (**8 folgas** em 28d; **9 folgas** em 29, 30 e 31d).\n"
+        "- **Domingos (Art. 5º, §§ 3º e 5º):** Reafirmada a escala quinzenal para mulheres (**Art. 386 da CLT**) e a preferência de ao menos 1 domingo em **no máximo 4 semanas (28 dias)** para todos.\n"
+        "- **Divisores Salário-Hora (Art. 10):** Passa de **220** para **210** (fase 42h, dez/2026) e **200** (fase 40h, dez/2027), elevando o valor da hora base em **+10,0%** no definitivo.\n"
     )
 
     linhas.append("---\n")
-    linhas.append(f"## 1. Quadro Resumo Comparativo (Base {TOTAL_EFETIVO_ATUAL} Efetivos / {POSTOS_SIMULTANEOS:.1f} Postos Simultâneos)\n")
+    linhas.append(f"## 1. Quadro Resumo das Opções Finalistas (Base {TOTAL_EFETIVO_ATUAL} Efetivos / {POSTOS_SIMULTANEOS:.1f} Postos Simultâneos)\n")
     linhas.append(
-        "| Perfil | Escala | Ciclo | Horas/Sem | Turnos x Turmas | Efetivo Diário (%) | "
-        f"Quadro Total p/ {POSTOS_SIMULTANEOS:.1f} postos | Extras (Total) | Dom/mês (méd) | Dias entre domingos (Méd / Máx) |"
+        "| Perfil | Escala | Ciclo | J. 8h / 8h24 | Turnos x Turmas | Efetivo (%) | "
+        f"Quadro p/ {POSTOS_SIMULTANEOS:.1f} | Extras | §4º 100%? | Domingos (Méd / Máx) |"
     )
     linhas.append(
         "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |"
@@ -146,12 +199,13 @@ def gerar_markdown(caminho_saida: str) -> None:
         padrao = item["padrao"]
         n = len(padrao)
         dias_t = padrao.count("T")
-        dias_f = padrao.count("F")
         horas_dia = item["horas_dia"]
         turnos = item["turnos"]
         turmas = item["turmas_por_turno"]
 
-        horas_sem = dias_t * horas_dia * (7.0 / n)
+        j_8 = dias_t * horas_dia * (7.0 / n)
+        j_84 = j_8 if horas_dia == 12 else dias_t * 8.4 * (7.0 / n)
+        j_str = f"{j_8:.2f}h / —" if horas_dia == 12 else f"{j_8:.2f}h / {j_84:.2f}h"
         efetivo_frac = dias_t / n
 
         quadro_por_turno_exato = POSTOS_SIMULTANEOS / efetivo_frac
@@ -160,27 +214,28 @@ def gerar_markdown(caminho_saida: str) -> None:
         extras_total = quadro_total_int - TOTAL_EFETIVO_ATUAL
         extras_pct = ((quadro_total_exato - TOTAL_EFETIVO_ATUAL) / TOTAL_EFETIVO_ATUAL) * 100.0
 
-        dom_mes = (dias_f / n) * (30.4 / 7.0)
-        dom_med, dom_max, dom_lista = calcular_intervalos_domingo(padrao)
-        print(f"{item['nome']:<18} | intervalos={dom_lista} | med={dom_med:.1f}d | max={dom_max}d")
+        dom_med, dom_max, _ = calcular_intervalos_domingo(padrao)
+        dom_str = "Fixo" if n % 7 == 0 else f"**{dom_med:.1f}d / {dom_max}d**"
+        ok_p4 = "SIM" if atende_par4_100(padrao) else "Não"
 
         linhas.append(
-            f"| {item['perfil']} | **{item['nome']}** | {n}d | {horas_sem:.2f}h | "
+            f"| {item['perfil']} | **{item['nome']}** | {n}d | {j_str} | "
             f"{turnos}x {turmas}t (p.{item['passo']}d) | "
             f"**{efetivo_frac*100:.2f}%** | "
             f"{quadro_total_int} ({quadro_total_exato:.1f}) | "
             f"**+{extras_total}** (+{extras_pct:.2f}%) | "
-            f"{dom_mes:.2f} | **{dom_med:.1f}d / {dom_max}d** |"
+            f"{ok_p4} | {dom_str} |"
         )
 
     linhas.append(
-        "\n> **Nota sobre 'Dias entre domingos (Méd / Máx)':** Quando há folgas seguidas (como `6x2` ou `5x2`), o colaborador pode folgar **2 domingos seguidos** (intervalo de 7 dias) e depois ficar um período maior trabalhando aos domingos até o próximo bloco de folga. "
-        "Na `6x2`, por exemplo, os intervalos reais são `[7d, 49d]`: média de **28,0 dias**, mas espera máxima de **49 dias** (7 semanas) sem folgar no domingo.\n"
+        "\n> **Nota sobre o § 4º:** Escalas que já concedem 2 folgas em toda janela de 7 dias cumprem a regra semanal (§ 1º) diretamente. "
+        "Já a **`6x3`** (que trabalha 6 dias seguidos e depende de ACT/CCT pelo § 3º) atende **100% da conta mensal do § 4º** e limita a espera máxima de domingo a **28 dias** (Art. 5º, § 5º).\n"
     )
+
     linhas.append("---\n")
     linhas.append(f"## 2. Estudo da Escala 12x36 (1x1) com {TOTAL_EFETIVO_ATUAL} Funcionários Efetivos\n")
     linhas.append(
-        "Na escala **12x36** (`1x1` em dias), a operação deixa de ter 3 turnos de 8h e passa a operar com **2 turnos de 12h** "
+        "Na escala **12x36** (`1x1` em dias), a operação passa de 3 turnos de 8h para **2 turnos de 12h** "
         f"(ex.: 06h–18h e 18h–06h). Mantendo os **{TOTAL_EFETIVO_ATUAL} funcionários atuais**, a distribuição fica assim:\n"
     )
     linhas.append(
@@ -189,8 +244,8 @@ def gerar_markdown(caminho_saida: str) -> None:
         "  - **Turno Diurno:** Turma A (**52 a 53**) nos dias ímpares e Turma B (**52 a 53**) nos dias pares.\n"
         "  - **Turno Noturno:** Turma C (**52 a 53**) nos dias ímpares e Turma D (**52 a 53**) nos dias pares.\n"
         "- **Ativos trabalhando por dia (24h):** **105 funcionários/dia** (**50,00%** dos 210) trabalhando e **105 funcionários/dia** folgando.\n"
-        "- **Cobertura simultânea:** Em qualquer hora do dia ou da noite, há **52,5 funcionários em média (52 a 53) trabalhando ao mesmo tempo**, entregando $105 \\times 12\\text{h} = \\mathbf{1.260\\text{ horas-homem/dia}}$ (exatamente igual aos 157,5 funcionários × 8h da `6x2`).\n"
-        "- **Contratações extras:** **0 (zero)** na `12x36` pura. *(Atenção: como a média é de 42h/sem, se a convenção coletiva exigir ajuste para 40h/sem em dez/2027, serão necessários ~11 funcionários extras no total — quadro de ~221 — para cobrir as folgas compensatórias).* \n"
+        "- **Cobertura simultânea:** Em qualquer hora do dia ou da noite, há **52,5 funcionários em média (52 a 53) trabalhando ao mesmo tempo**, entregando $105 \\times 12\\text{h} = \\mathbf{1.260\\text{ horas-homem/dia}}$ (igual aos 157,5 × 8h da `6x2`).\n"
+        "- **Regra expressa do Art. 8º da Portaria 2.041/2026:** Enquanto o teto for de 42h/sem (dez/2026–dez/2027), a `12x36` fecha em 42h sem horas extras. A partir de **dez/2027 (teto de 40h/sem)**, o Art. 8º obriga expressamente a **compensação das horas ou o pagamento de horas extras** no mês-calendário via ACT/CCT — o que exigirá **~11 funcionários extras (quadro de ~221 / +5,0%)** caso se opte por folgas compensatórias.\n"
     )
 
     linhas.append("---\n")
@@ -205,7 +260,8 @@ def gerar_markdown(caminho_saida: str) -> None:
         horas_dia = item["horas_dia"]
         dias_t = padrao.count("T")
         dias_f = padrao.count("F")
-        horas_sem = dias_t * horas_dia * (7.0 / n)
+        j_8 = dias_t * horas_dia * (7.0 / n)
+        j_84 = j_8 if horas_dia == 12 else dias_t * 8.4 * (7.0 / n)
         efetivo_frac = dias_t / n
         quadro_por_turno_exato = POSTOS_SIMULTANEOS / efetivo_frac
         quadro_total_exato = quadro_por_turno_exato * turnos
@@ -213,10 +269,12 @@ def gerar_markdown(caminho_saida: str) -> None:
         extras_total = quadro_total_int - TOTAL_EFETIVO_ATUAL
         dom_med, dom_max, _ = calcular_intervalos_domingo(padrao)
 
+        j_txt = f"{j_8:.2f}h/sem" if horas_dia == 12 else f"{j_8:.2f}h/sem (8h/d) | {j_84:.2f}h/sem (8h24/d)"
+
         linhas.append(f"### {item['perfil']}: `{item['nome']}` (Ciclo de {n} dias)\n")
         linhas.append(
             f"- **Padrão:** `{padrao}` ({dias_t}T / {dias_f}F de {horas_dia}h) | "
-            f"**Jornada média:** {horas_sem:.2f}h/sem | **Dias entre domingos:** {dom_med:.1f}d méd / {dom_max}d máx\n"
+            f"**Jornada média:** {j_txt} | **Domingos:** {dom_med:.1f}d méd / {dom_max}d máx\n"
             f"- **Enquadramento:** {item['legal']}\n"
             f"- **Efetivo por turno (para {POSTOS_SIMULTANEOS:.1f} simultâneos):** {quadro_por_turno_exato:.1f} pessoas/turno "
             f"({turnos} turnos = **{quadro_total_int} no total**, **+{extras_total} extras** frente aos {TOTAL_EFETIVO_ATUAL} atuais)\n"
@@ -243,52 +301,72 @@ def gerar_markdown(caminho_saida: str) -> None:
     linhas.append("## 4. Considerações Financeiras, Operacionais e Riscos para Tomada de Decisão\n")
     linhas.append(
         "### 4.1. Custo da Inércia (Manter a escala 6x2 após 16/12/2026)\n"
-        "- A manutenção da `6x2` (42h/sem e apenas 1,75 folga/sem na média) após o início da transição da EC 141/2026 "
-        "expõe a empresa a passivo trabalhista direto (pagamento de horas extras excedentes, nulidade da escala e reflexos em DSR/férias/13º), "
-        "além de risco de autuação em fiscalizações e desgaste sindical.\n"
+        "- A manutenção da `6x2` (42h/sem e 1,75 folga/sem na média) após o início da vigência da EC 141/2026 e da Portaria 2.041/2026 "
+        "expõe a empresa a passivo trabalhista direto (horas extras excedentes, pagamento em dobro do repouso não compensado pelo Art. 5º § 6º, nulidade de cláusula coletiva pelo Art. 13 e autuação).\n"
     )
     linhas.append(
-        "### 4.2. Impacto Orçamentário na Folha e Ponte de Transição (2026–2027)\n"
-        "- **Teto físico da lei:** Com jornadas de 8h/dia e limite de 40h/semana, o teto absoluto de efetivo diário é `40 / 56 = 71,43%` "
-        "(e no máximo `70,00%` com rotação semanal). Portanto, qualquer escala de 8h exige aumento de quadro.\n"
-        "- **Faixa de impacto direto na folha:** Sobre os **210 efetivos atuais**, manter os 52,5 postos simultâneos exige entre "
-        "**+15 pessoas (+7,14%)** nas opções de maior aproveitamento (`3x1 + 2x1 + 2x1` e `5x2 + 5x2 + 4x2`) e **+27 pessoas (+12,50%)** "
-        "nas opções mais simples (`4x2`, `2x1` e `5x2 + 5x3`), além de encargos trabalhistas, benefícios e custo de recrutamento/integração.\n"
-        "- **Alívio de fluxo de caixa na transição (dez/2026 a dez/2027):** Conforme detalhado no estudo de 42h/semana, "
-        "durante o primeiro ano (jornada de 8h24min/dia), se os 24 minutos extras puderem ser aproveitados em horas-homem (1.260 h-h/dia), "
-        "a contratação imediata cai para **+5 pessoas** em dez/2026 na escala de 70%, permitindo escalonar os **+10 restantes** ao longo de 2027 até a entrada do teto definitivo de 40h.\n"
+        "### 4.2. Impacto Orçamentário na Folha, Novos Divisores e Ponte de Transição (2026–2027)\n"
+        "- **Teto físico da lei:** Com jornadas de 8h/dia e limite de 40h/semana, o teto absoluto é `40 / 56 = 71,43%` (`70,00%` com rotação). Qualquer escala de 8h exige ampliação de quadro.\n"
+        "- **Aumento do salário-hora pelos novos divisores (Art. 10 da Portaria 2.041/2026):** O divisor cai de **220** para **210** na fase de 42h (**+4,76%** no valor-hora) e para **200** na fase de 40h (**+10,00%** no valor-hora). "
+        "Mesmo mantendo o salário nominal, todas as verbas calculadas por hora (**adicional noturno dos turnos da noite, horas extras e reflexos**) sobem automaticamente **+10%** no patamar definitivo.\n"
+        "- **Impacto direto em contratações (base 210):** Entre **+15 pessoas (+7,14%)** nas escalas de 70% (`3x1+2x1+2x1`, `5x2+5x2+4x2`), **+20 (+9,09%)** na `(4x 2x1)+3x1` (68,75%), até **+27 pessoas (+12,50%)** nas escalas de 3 turmas (`4x2`, `2x1`, `5x2+5x3`, `6x3`).\n"
+        "- **Alívio de fluxo de caixa no 1º ano (8h24min/dia):** Durante a vigência das 42h/sem (até 15/12/2027), se a operação aproveitar os 24 min extras diários em horas-homem (1.260 h-h/dia), "
+        "as escalas de 3 turmas (`4x2`, `6x3`, `5x2+5x3`) atingem **39,20h/sem** e demandam inicialmente **+15 pessoas (quadro 225)** em 2027, escalonando os **+12 restantes** para dezembro/2027.\n"
     )
     linhas.append(
-        "### 4.3. Riscos Financeiros e Operacionais da Exceção `12x36`\n"
-        "- **Dependência sindical integral:** A `12x36` só é juridicamente válida mediante **Acordo ou Convenção Coletiva de Trabalho (ACT/CCT)**.\n"
-        "- **Risco de degrau em dezembro/2027 (42h → 40h):** Como a `12x36` gera média de 42h/semana, a aplicação do teto de 40h/semana em dez/2027 "
-        "pode exigir folgas compensatórias adicionais via CCT, elevando o quadro de 210 para **~221 pessoas (+11 / +5,0%)**.\n"
-        "- **Custos indiretos ocultos:** A migração de 3 turnos de 8h para 2 turnos de 12h altera a incidência de **adicional noturno**, "
-        "exige revisão de **rotas e horários de transporte fretado**, impacta o **pagamento/compensação de feriados** e encarece a cobertura de faltas/atestados "
-        "(pois cobrir um turno de 12h com hora extra custa mais caro e aumenta o risco de fadiga e passivos na **NR-1**).\n"
+        "### 4.3. Riscos Financeiros e Operacionais da Exceção `12x36` (e das propostas sindicais `3x3` / `4x4`)\n"
+        "- **Dependência sindical integral:** A `12x36` exige **ACT/CCT**. Pelo **Art. 8º da Portaria 2.041/2026**, ao cair o teto para 40h em dez/2027, torna-se obrigatória a **compensação de horas ou hora extra**, elevando o quadro de 210 para **~221 (+11 / +5,0%)**.\n"
+        "- **Custos indiretos ocultos da `12x36`:** Alteração na incidência de **adicional noturno** (com divisor 200), revisão de **transporte fretado**, pagamento/compensação de **feriados**, cobertura cara de faltas de 12h e riscos de fadiga/SST (**NR-1**).\n"
+        "- **Propostas sindicais `3x3` e `4x4`:** Em turnos de 8h são inviáveis (`28,00h/sem`, exigiriam **+105 pessoas / +50%**). Em turnos de 12h, impõem 3 ou 4 plantões seguidos de 12h (apenas 12h de intervalo entre eles), com risco ergonômico e jurídico muito superior à `12x36`.\n"
     )
     linhas.append(
-        "### 4.4. Risco Trabalhista (Art. 386 da CLT) e Turnover no Efetivo Feminino (70%+)\n"
-        "- O **Art. 386 da CLT** prevê escala de revezamento quinzenal aos domingos para mulheres quando há trabalho dominical (e convenções coletivas frequentemente exigem ao menos 1 domingo/mês).\n"
-        "- Escalas com ciclos longos (`5x2 + 5x2 + 4x2` com máx. **105 dias**, `5x2 + 5x3` com **77 dias**, `5x2 + 4x2` com **70 dias** e `3x1 + 2x1 + 2x1` com **56 dias**) "
-        "geram longos períodos sem domingo livre, elevando o risco de **passivo trabalhista** e **rotatividade (turnover)** — cujo custo de reposição e perda de produtividade pode anular a economia inicial de folha frente à `4x2` (máx. 35 dias) ou `2x1` (21 dias fixos).\n"
-        "- **Recomendação pré-decisão:** Submeter as opções finalistas à validação do Jurídico Trabalhista e do Sindicato antes da aprovação orçamentária.\n"
+        "### 4.4. Risco Trabalhista (Art. 386 da CLT), Regra dos Domingos (Art. 5º) e Turnover Feminino (70%+)\n"
+        "- A Portaria 2.041/2026 reafirmou no **Art. 5º, § 3º** a obrigatoriedade da **escala quinzenal aos domingos para empregadas (Art. 386 da CLT)** e no **§ 5º** a preferência de ao menos **1 domingo a cada 4 semanas (28 dias)** para todos.\n"
+        "- Escalas com apagões de **56 a 105 dias** sem domingo (`5x2+5x2+4x2`, `5x2+5x3`, `5x2+4x2`, `3x1+2x1+2x1`) geram risco elevado de passivo trabalhista e *turnover*.\n"
+        "- Entre as de 3 turmas com folgas consecutivas, a **`4x2`** (máx. **35d**, sem depender de ACT/CCT) e a **`6x3`** (máx. **28d**, via ACT/CCT pelo § 3º e 100% aderente ao § 4º) oferecem o melhor equilíbrio operacional — devendo ser submetidas ao Jurídico Trabalhista quanto à aplicação do Art. 386 da CLT.\n"
     )
     linhas.append(
         "### 4.5. Arredondamento de Turmas, Férias e Reserva Técnica\n"
-        "- Nas escalas de **10 ou 13 turmas por turno** (ex.: 225 pessoas ÷ 3 turnos = 75 pessoas/turno ÷ 10 turmas), as turmas ficam com **7 a 8 pessoas cada** (heterogêneas). "
-        "É necessário prever cobertura de férias e absenteísmo (reserva técnica), pois uma única ausência em uma microturma de 7 pessoas representa ~14% de perda pontual naquela equipe.\n"
-        "- A troca de escala exige ainda **plano de gestão da mudança** (comunicação, adequação de transporte e período de adaptação de 60 a 90 dias) para evitar picos de desligamento voluntário.\n"
+        "- Em escalas de **10, 13 ou 16 turmas por turno** (75 ÷ 10 = 7 a 8 pessoas/turma), uma ausência pontual impacta mais fortemente a microturma. Já nas escalas de **3 turmas por turno** (`4x2`, `6x3`, `5x2+5x3`, `2x1`), com ~26 pessoas por turma, a gestão de férias, folgas e cobertura de absenteísmo é muito mais estável.\n"
     )
+
+    linhas.append("---\n")
+    linhas.append("## 5. Tabela Histórica Completa de Todas as Escalas Estudadas\n")
+    linhas.append(
+        "| Escala | Ciclo | Efetivo | Quadro (Base 210) | J. Média (8h) | J. Média (8h24) | "
+        "Folgas 28d / 29d / 30d / 31d | §4º 100%? | Dom (Méd / Máx) | Status / Enquadramento |"
+    )
+    linhas.append(
+        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |"
+    )
+
+    for nome, pat, hd, turnos, obs in HISTORICO_COMPLETO:
+        n = len(pat)
+        dt = pat.count("T")
+        ef = dt / n
+        q_tot = ceil((POSTOS_SIMULTANEOS / ef) * turnos)
+        ext = q_tot - TOTAL_EFETIVO_ATUAL
+        j8 = dt * hd * 7.0 / n
+        j84 = "—" if hd == 12.0 else f"{dt * 8.4 * 7.0 / n:.2f}h"
+        f_cols = []
+        for dm in (28, 29, 30, 31):
+            fmin, fmax, _ = folgas_por_mes(pat, dm)
+            f_cols.append(f"{fmin}" if fmin == fmax else f"{fmin}–{fmax}")
+        ok_p4 = "**Sim**" if atende_par4_100(pat) else "Não"
+        dmed, dmax, _ = calcular_intervalos_domingo(pat)
+        dom_s = "Fixo" if n % 7 == 0 else f"{dmed:.1f}d / {dmax}d"
+        linhas.append(
+            f"| **{nome}** | {n}d | {ef*100:.2f}% | {q_tot} ({ext:+d}) | {j8:.2f}h | {j84} | "
+            f"{' / '.join(f_cols)} | {ok_p4} | {dom_s} | {obs} |"
+        )
 
     with open(caminho_saida, "w", encoding="utf-8") as f:
         f.write("\n".join(linhas))
-    print(f"Relatório gerado com sucesso em: {caminho_saida}")
+    print(f"Relatório v5 gerado com sucesso em: {caminho_saida}")
 
 
 if __name__ == "__main__":
-    from gerar_docx import md_para_docx
-    md_v4 = "/mnt/a/SANDBOX/ESCALAS/relatorio_escalas_v4.md"
-    docx_v4 = "/mnt/a/SANDBOX/ESCALAS/relatorio_escalas_v4.docx"
-    gerar_markdown(md_v4)
-    md_para_docx(md_v4, docx_v4)
+    md_v5 = "/mnt/a/SANDBOX/ESCALAS/relatorio_escalas_v5.md"
+    docx_v5 = "/mnt/a/SANDBOX/ESCALAS/relatorio_escalas_v5.docx"
+    gerar_markdown(md_v5)
+    md_para_docx(md_v5, docx_v5)
